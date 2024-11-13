@@ -47,7 +47,7 @@ runs:
         # per GitHub account.
         # Caching is disabled in order not to receive stale responses from Varnish cache fronting GitHub API.
         RELEASE_HEADER=''
-        if [[ ! -z "${{github.token}}" ]] && if [[ ${{ inputs.supply-gh-token }} ]]; then
+        if [[ ! -z "${{github.token}}" ]] && [[ ${{ inputs.supply-gh-token }} ]]; then
           RELEASE_HEADER=("--header" "'authorization: Bearer ${{ github.token }}'")
         fi
         RELEASE_INFO="$(curl --silent --show-error --fail \
