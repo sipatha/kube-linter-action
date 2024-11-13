@@ -22,6 +22,10 @@ inputs:
     description: 'Version of kube-linter to use. E.g. "0.2.4". Default: "latest"'
     required: false
     default: 'latest'
+  supply-gh-token:
+    description: 'Whether or not to se the github token. Crucial for when running on GHE, the token cannot be validated by Github.com. Default is true for backward compatibility.'
+    required: false
+    default: 'true'
 runs:
   using: "composite"
   steps:
@@ -42,8 +46,12 @@ runs:
         # in order to increase the limit of 60 requests per hour per IP address to a higher value that's also counted
         # per GitHub account.
         # Caching is disabled in order not to receive stale responses from Varnish cache fronting GitHub API.
+        RELEASE_HEADER=''
+        if [[ ! -z "${{github.token}}" ]] && if [[ ${{ inputs.supply-gh-token }} ]]; then
+          RELEASE_HEADER=("--header" "'authorization: Bearer ${{ github.token }}'")
+        fi
         RELEASE_INFO="$(curl --silent --show-error --fail \
-          --header 'authorization: Bearer ${{ github.token }}' \
+          ${RELEASE_HEADER} \
           --header 'Cache-Control: no-cache, must-revalidate' \
           "${RELEASE_URL}")"
         RELEASE_NAME="$(echo "${RELEASE_INFO}" | jq --raw-output ".name")"
